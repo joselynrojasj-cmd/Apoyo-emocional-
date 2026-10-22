@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Apoyo y Registro Emocional</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#6366f1">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background-color: #f8fafc; color: #1e293b; padding: 16px; max-width: 500px; margin: 0 auto; }
+    header { text-align: center; margin-bottom: 20px; }
+    h1 { font-size: 1.4rem; color: #4f46e5; }
+    .card { background: white; padding: 16px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 16px; }
+    h2 { font-size: 1.1rem; margin-bottom: 10px; color: #334155; }
+    button { width: 100%; padding: 12px; background-color: #6366f1; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 8px; }
+    button:active { background-color: #4f46e5; }
+    textarea { width: 100%; height: 80px; padding: 8px; border: 1px solid #cbd5e1; border-radius: 8px; resize: none; margin-top: 8px; }
+    .emergency { background-color: #ef4444; }
+    .emergency:active { background-color: #dc2626; }
+    .entry { background: #f1f5f9; padding: 8px 12px; border-radius: 6px; margin-top: 8px; font-size: 0.9rem; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Apoyo y Registro Emocional</h1>
+    <p style="font-size: 0.85rem; color: #64748b;">Prevención y manejo de impulsos</p>
+  </header>
+
+  <div class="card">
+    <h2>🧘 Pausa de Emergencia</h2>
+    <p style="font-size: 0.9rem; color: #475569;">Tómate un momento. Inhala durante 4 segundos, sostén 4 segundos y exhala en 4 segundos.</p>
+    <button onclick="alert('Inhala profundamente... 1, 2, 3, 4. Sostén... Exhala lentamente.')">Iniciar Ejercicio de Respìración</button>
+  </div>
+
+  <div class="card">
+    <h2>📝 Diario de Emociones</h2>
+    <p style="font-size: 0.85rem; color: #64748b;">Escribe cómo te sientes en este momento (sin mediciones ni números).</p>
+    <textarea id="emotionInput" placeholder="¿Qué emoción estás experimentando justo ahora?"></textarea>
+    <button onclick="saveEmotion()">Guardar Registro</button>
+    <div id="journalEntries"></div>
+  </div>
+
+  <div class="card">
+    <h2>📞 Red de Contactos de Apoyo</h2>
+    <button class="emergency" onclick="window.location.href='tel:911'">Llamar a Emergencias (911)</button>
+  </div>
+
+  <script>
+    function saveEmotion() {
+      const input = document.getElementById('emotionInput');
+      if (!input.value.trim()) return;
+      
+      const entries = JSON.parse(localStorage.getItem('emotions') || '[]');
+      const newEntry = { text: input.value, date: new Date().toLocaleString() };
+      entries.unshift(newEntry);
+      localStorage.setItem('emotions', JSON.stringify(entries));
+      input.value = '';
+      renderEntries();
+    }
+
+    function renderEntries() {
+      const entries = JSON.parse(localStorage.getItem('emotions') || '[]');
+      const container = document.getElementById('journalEntries');
+      container.innerHTML = entries.slice(0, 3).map(e => `<div class="entry"><strong>${e.date}:</strong> ${e.text}</div>`).join('');
+    }
+
+    renderEntries();
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then(reg => console.log('SW activo:', reg.scope))
+          .catch(err => console.log('Error SW:', err));
+      });
+    }
+  </script>
+</body>
+</html>
